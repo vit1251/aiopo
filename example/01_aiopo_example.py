@@ -19,6 +19,17 @@ class Application(object):
         """
         self.po = PushoverClient(app_token=APP_TOKEN, user_key=USER_KEY)
         await self.po.notify(message=MESSAGE)
+        await self.po.notify(
+            message=MESSAGE, 
+            title='AIOPO Github',
+            devices=['BOB'], # not working
+            url='https://github.com/vit1251/aiopo', 
+            url_title='Aiopo page on github',
+            sound='mechanical',
+            priority=PushoverClient.PRIORITY_NORMAL,
+            timestamp = datetime.now() + timedelta(seconds = 60 * 10), # or direct timestamp
+            attachment = '<path to jpg>'
+        )
 
     async def stop(self):
         """ Stop corotine
