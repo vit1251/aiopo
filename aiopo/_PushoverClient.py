@@ -1,16 +1,25 @@
 
 from logging import getLogger
 from aiohttp import ClientSession
-
+from datetime import datetime
 
 class PushoverClient(object):
-    def __init__(self, app_token, user_key):
+
+    PRIORITY_LOWEST=-2
+    PRIORITY_LOW=-1
+    PRIORITY_NORMAL=0
+    PRIORITY_HIGH=1
+    PRIORITY_EMERGENCY=2
+
+    sounds = ['pushover', 'bike', 'bugle', 'cashregister', 'classical', 'cosmic', 'falling', 'gamelan', 'incoming', 'intermission', 'magic', 'mechanical', 'pianobar', 'siren', 'spacealarm', 'tugboat', 'alien', 'climb', 'persistent', 'echo', 'updown', 'none']
+
+    def __init__(self, app_token, user_key=None):
         self.__log = getLogger('aiopo')
         self._url = 'https://api.pushover.net/1/messages.json'
         self._app_token = app_token
         self._user_key = user_key
 
-    async def notify(self, message, title=None, url=None, url_title=None):
+    async def notify(self, message, title=None, url=None, url_title=None, devices=None, priority=None, sound = None, timestamp=None):
         """ Push message
 
         Pushover API request is HTTPS POST request:
@@ -44,7 +53,18 @@ class PushoverClient(object):
         if title is not None : payload['title'] = title
         if url is not None : payload['url'] = url
         if url_title is not None : payload['url_title'] = url_title 
-            
+        # @todo: devices not working, if devices does'nt exists every body will get messages :'(
+        if devices is not None : payload['devices'] = ','.join(devices)
+        if priority is not None : payload['priority'] = priority
+        if priority == PushoverClient.PRIORITY_EMERGENCY:
+            payload['retry'] = 120
+            payload['expire'] = 3600
+        if sound is not None and sound in self.sounds : payload['sound'] = sound
+        if timestamp is not None :
+            if type(timestamp) == datetime:
+                payload['timestamp'] = timestamp.strftime("%s")
+            else:
+                payload['timestamp'] = timestamp
         async with ClientSession() as session:
             async with session.post(self._url, data=payload) as resp:
                 self.__log.debug("status = {status!r}".format(status=resp.status))
