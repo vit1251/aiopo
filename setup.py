@@ -8,7 +8,7 @@ if version_info < (3, 5, 3):
 
 setup(
     name='aiopo',
-    version='1.1',
+    version='1.2',
     description='Async Pushover client (asyncio)',
     classifiers=[
         'Intended Audience :: Developers',
