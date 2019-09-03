@@ -1,7 +1,9 @@
 
 from logging import getLogger
-from aiohttp import ClientSession
+from aiohttp import ClientSession, FormData
 from datetime import datetime
+import mimetypes
+import os.path
 
 class PushoverClient(object):
 
@@ -19,7 +21,7 @@ class PushoverClient(object):
         self._app_token = app_token
         self._user_key = user_key
 
-    async def notify(self, message, title=None, url=None, url_title=None, devices=None, priority=None, sound = None, timestamp=None):
+    async def notify(self, message, title=None, url=None, url_title=None, devices=None, priority=None, sound = None, timestamp=None, attachment=None):
         """ Push message
 
         Pushover API request is HTTPS POST request:
@@ -45,11 +47,13 @@ class PushoverClient(object):
         DEBUG:aiopo:{"status":1,"request":"c36a3056-4377-4d88-9543-f6e5da94c781"}
 
         """
+        form_data = FormData()
         payload = {
             'token': self._app_token,
             'user': self._user_key,
             'message': message,
         }
+        files = []
         if title is not None : payload['title'] = title
         if url is not None : payload['url'] = url
         if url_title is not None : payload['url_title'] = url_title 
@@ -65,8 +69,15 @@ class PushoverClient(object):
                 payload['timestamp'] = timestamp.strftime("%s")
             else:
                 payload['timestamp'] = timestamp
+        for key, value in payload.items():
+            form_data.add_field(key, str(value))
+        # @todo: test attachment 2.5Mo limit
+        if attachment is not None:
+            if os.path.isfile(attachment):
+                form_data.add_field('attachment', open(attachment,"rb").read(), content_type=mimetypes.guess_type(attachment)[0], filename="32476688_544383832626131_3047482993925947392_n.jpg")
+        
         async with ClientSession() as session:
-            async with session.post(self._url, data=payload) as resp:
+            async with session.post(self._url, data=form_data) as resp:
                 self.__log.debug("status = {status!r}".format(status=resp.status))
                 if resp.status != 200:
                     raise RuntimeError('Pushover response code {status}'.format(status=resp.status))
