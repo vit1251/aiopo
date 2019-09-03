@@ -10,7 +10,7 @@ class PushoverClient(object):
         self._app_token = app_token
         self._user_key = user_key
 
-    async def notify(self, message):
+    async def notify(self, message, title=None, url=None, url_title=None):
         """ Push message
 
         Pushover API request is HTTPS POST request:
@@ -41,6 +41,10 @@ class PushoverClient(object):
             'user': self._user_key,
             'message': message,
         }
+        if title is not None : payload['title'] = title
+        if url is not None : payload['url'] = url
+        if url_title is not None : payload['url_title'] = url_title 
+            
         async with ClientSession() as session:
             async with session.post(self._url, data=payload) as resp:
                 self.__log.debug("status = {status!r}".format(status=resp.status))
