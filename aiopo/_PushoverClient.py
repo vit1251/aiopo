@@ -74,7 +74,8 @@ class PushoverClient(object):
         # @todo: test attachment 2.5Mo limit
         if attachment is not None:
             if os.path.isfile(attachment):
-                form_data.add_field('attachment', open(attachment,"rb").read(), content_type=mimetypes.guess_type(attachment)[0], filename="32476688_544383832626131_3047482993925947392_n.jpg")
+                _, filename = os.path.split(attachment)
+                form_data.add_field('attachment', open(attachment,"rb").read(), content_type=mimetypes.guess_type(attachment)[0], filename=filename)
         
         async with ClientSession() as session:
             async with session.post(self._url, data=form_data) as resp:
