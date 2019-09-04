@@ -53,7 +53,6 @@ class PushoverClient(object):
             'user': self._user_key,
             'message': message,
         }
-        files = []
         if title is not None : payload['title'] = title
         if url is not None : payload['url'] = url
         if url_title is not None : payload['url_title'] = url_title 
