@@ -64,7 +64,7 @@ class PushoverClient(object):
             payload['expire'] = 3600
         if sound is not None and sound in self.sounds : payload['sound'] = sound
         if timestamp is not None :
-            if type(timestamp) == datetime:
+            if isinstance(timestamp, datetime):
                 payload['timestamp'] = timestamp.strftime("%s")
             else:
                 payload['timestamp'] = timestamp
