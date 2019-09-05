@@ -53,7 +53,6 @@ class PushoverClient(object):
             'user': self._user_key,
             'message': message,
         }
-        files = []
         if title is not None : payload['title'] = title
         if url is not None : payload['url'] = url
         if url_title is not None : payload['url_title'] = url_title 
@@ -74,7 +73,8 @@ class PushoverClient(object):
         # @todo: test attachment 2.5Mo limit
         if attachment is not None:
             if os.path.isfile(attachment):
-                form_data.add_field('attachment', open(attachment,"rb").read(), content_type=mimetypes.guess_type(attachment)[0], filename="32476688_544383832626131_3047482993925947392_n.jpg")
+                _, filename = os.path.split(attachment)
+                form_data.add_field('attachment', open(attachment,"rb").read(), content_type=mimetypes.guess_type(attachment)[0], filename=filename)
         
         async with ClientSession() as session:
             async with session.post(self._url, data=form_data) as resp:
