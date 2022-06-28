@@ -1,2 +1,3 @@
 # aiopo
-Asyncio PuhoOver
+
+Python async PushOver module
